@@ -11,7 +11,7 @@ jobs:
 
   build:
   
-    name: ${{ matrix.os }} ${{ matrix.configuration }}
+    name: ${{ matrix.os }} ${{ matrix.platform }} ${{ matrix.configuration }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -48,7 +48,7 @@ jobs:
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_TOOLCHAIN_FILE=${{ steps.strings.outputs.vcpkg-dir }}/scripts/buildsystems/vcpkg.cmake
         -DCMAKE_BUILD_TYPE=${{ matrix.configuration }}
-        -DCMAKE_GENERATOR_PLATFORM=${{ matrix.platform }}
+        ${{ matrix.os == 'windows-2022' && format('-DCMAKE_GENERATOR_PLATFORM={0}', matrix.platform) || '' }}
         -S ${{ github.workspace }}
 
     - name: Build
