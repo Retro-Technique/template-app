@@ -36,6 +36,11 @@ jobs:
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
         echo "vcpkg-dir=${{ github.workspace }}/vcpkg" >> "$GITHUB_OUTPUT"
 
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v2
+      with:
+        languages: cpp
+
     - name: Install vcpkg
       run: |
         git clone https://github.com/microsoft/vcpkg.git ${{ steps.strings.outputs.vcpkg-dir }}
@@ -53,6 +58,9 @@ jobs:
 
     - name: Build
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.configuration }}
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v2
 
     - name: Test
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
