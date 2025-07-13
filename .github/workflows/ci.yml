@@ -36,10 +36,13 @@ jobs:
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
         echo "vcpkg-dir=${{ github.workspace }}/vcpkg" >> "$GITHUB_OUTPUT"
 
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v2
-      with:
-        languages: cpp
+    - name: Install Cppcheck
+      run: |
+        if [ "${{ matrix.os }}" == "ubuntu-24.04" ]; then
+          sudo apt-get update && sudo apt-get install -y cppcheck
+        elif [ "${{ matrix.os }}" == "windows-2022" ]; then
+          choco install cppcheck
+        fi
 
     - name: Install vcpkg
       run: |
@@ -59,8 +62,8 @@ jobs:
     - name: Build
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.configuration }}
 
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v2
+    - name: Run Cppcheck
+      run: cppcheck --enable=all --inconclusive --force --suppress=missingIncludeSystem --error-exitcode=1
 
     - name: Test
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
