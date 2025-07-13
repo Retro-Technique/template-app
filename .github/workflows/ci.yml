@@ -36,14 +36,16 @@ jobs:
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
         echo "vcpkg-dir=${{ github.workspace }}/vcpkg" >> "$GITHUB_OUTPUT"
 
-    - name: Install Cppcheck
-      shell: ${{ matrix.os == 'windows-2022' && 'pwsh' || 'bash' }}
+    - name: Install Cppcheck (Ubuntu)
+      if: matrix.os == 'ubuntu-24.04'
       run: |
-        if ("${{ matrix.os }}" -eq "ubuntu-24.04") {
-          sudo apt-get update && sudo apt-get install -y cppcheck
-        } elseif ("${{ matrix.os }}" -eq "windows-2022") {
-          choco install cppcheck
-        }
+        sudo apt-get update && sudo apt-get install -y cppcheck
+
+    - name: Install Cppcheck (Windows)
+      if: matrix.os == 'windows-2022'
+      shell: pwsh
+      run: |
+        choco install cppcheck
 
     - name: Install vcpkg
       run: |
