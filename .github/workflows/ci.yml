@@ -1,4 +1,4 @@
-name: CMake on multiple platforms
+name: CI
 
 on:
 
@@ -16,6 +16,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-2022, ubuntu-24.04]
+        platform: [x64]
         configuration: ['Debug', 'Release']
         include:
             - os: windows-2022
@@ -44,9 +45,10 @@ jobs:
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-        -DCMAKE_TOOLCHAIN_FILE=${{ steps.strings.outputs.vcpkg-dir }}/scripts/buildsystems/vcpkg.cmake
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+        -DCMAKE_TOOLCHAIN_FILE=${{ steps.strings.outputs.vcpkg-dir }}/scripts/buildsystems/vcpkg.cmake
         -DCMAKE_BUILD_TYPE=${{ matrix.configuration }}
+        -DCMAKE_GENERATOR_PLATFORM=${{ matrix.platform }}
         -S ${{ github.workspace }}
 
     - name: Build
