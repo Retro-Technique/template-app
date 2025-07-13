@@ -35,24 +35,22 @@ jobs:
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
         echo "vcpkg-dir=${{ github.workspace }}/vcpkg" >> "$GITHUB_OUTPUT"
-
+         
     - name: Install Cppcheck (Ubuntu)
       if: matrix.os == 'ubuntu-24.04'
-      run: |
-        sudo apt-get update && sudo apt-get install -y cppcheck
+      run: sudo apt-get update && sudo apt-get install -y cppcheck
 
     - name: Install Cppcheck (Windows)
       if: matrix.os == 'windows-2022'
       shell: pwsh
-      run: |
-        choco install cppcheck
+      run: choco install cppcheck
 
     - name: Install vcpkg
       run: |
         git clone https://github.com/microsoft/vcpkg.git ${{ steps.strings.outputs.vcpkg-dir }}
         ${{ steps.strings.outputs.vcpkg-dir }}/bootstrap-vcpkg.sh
 
-    - name: Configure CMake
+    - name: Run CMake
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
@@ -62,13 +60,13 @@ jobs:
         ${{ matrix.os == 'windows-2022' && format('-DCMAKE_GENERATOR_PLATFORM={0}', matrix.platform) || '' }}
         -S ${{ github.workspace }}
 
-    - name: Build
+    - name: Run Build
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.configuration }}
 
-    - name: Run Cppcheck
+    - name: Run Code Analysis
       working-directory: ${{ github.workspace }}
       run: cppcheck --enable=all --inconclusive --force --suppress=missingIncludeSystem --error-exitcode=1
 
-    - name: Test
+    - name: Run Unit Tests
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
       run: ctest --build-config ${{ matrix.configuration }}
