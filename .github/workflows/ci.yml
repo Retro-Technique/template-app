@@ -66,6 +66,7 @@ jobs:
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.configuration }}
 
     - name: Run Cppcheck
+      working-directory: ${{ github.workspace }}
       run: cppcheck --enable=all --inconclusive --force --suppress=missingIncludeSystem --error-exitcode=1
 
     - name: Test
